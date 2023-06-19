@@ -13,11 +13,12 @@ const getAll = catchError(async (req, res) => {
 });
 
 const create = catchError(async (req, res) => {
+
     const { email, password, firstName, lastName, country, image, frontBaseUrl } = req.body
 
     const hashPassword = await bcrypt.hash(password, 10)
 
-    const body = { email, firstName, lastName, country, image, password: hashPassword }
+    const body = { email, firstName, lastName, country, image, password:hashPassword }
 
     const code = require('crypto').randomBytes(64).toString('hex')
     const url = `${frontBaseUrl}/verify_email/${code}`
