@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt');
 const sendEmail = require('../utils/sendEmails');
 const EmailCode = require('../models/EmailCode');
 const jwt = require('jsonwebtoken');
-const { where } = require('sequelize');
 
 
 const getAll = catchError(async (req, res) => {
@@ -14,29 +13,26 @@ const getAll = catchError(async (req, res) => {
 
 const create = catchError(async (req, res) => {
 
-    const { email, password, firstName, lastName, country, image, frontBaseUrl } = req.body
+    const {email,password,firstName,lastName,country,image,frontBaseUrl} = req.body
 
     const hashPassword = await bcrypt.hash(password, 10)
 
-    const body = { email, firstName, lastName, country, image, password:hashPassword }
+    const body = {email,firstName,lastName,country,image,password:hashPassword}
+    const result = await User.create(body);
 
     const code = require('crypto').randomBytes(64).toString('hex')
     const url = `${frontBaseUrl}/verify_email/${code}`
 
-    await sendEmail(
-        {
-            to: email,
-            subject: "Verificacion de cuenta",
-            html: `
-            <h2>Haz click en el siguiente enlace para verificar la cuenta:  </h2>
-                <a href=${url}>Click me!</a>
-            `
-        }
-    )
+    await sendEmail({
+        to:email,
+        subject:"Verificacion de cuenta",
+        html:` 
+        <h2>Haz click en el siguiuente enlace para verificar la cuenta:</h2>
+        <a href=${url}>Click me!</a>
+        `
+    })
 
-    const result = await User.create(body);
-
-    const bodyCode = { code: code, userId: result.id }
+    const bodyCode = { code:code, userId:result.id }
 
     await EmailCode.create(bodyCode)
 
