@@ -70,7 +70,7 @@ const verifyCode = catchError(async (req, res) => {
 
     const body = { isVerified: true }
 
-    const userUpdate = await User.update(body, { where: { id: codeUser.userId } })
+    const userUpdate = await User.update(body, { where: { id: codeUser.userId }, returning: true })
 
     await codeUser.destroy()
 
@@ -132,14 +132,14 @@ const updatePassword = catchError(async (req, res) => {
 
     if (!userCode) return res.sendStatus(401)
 
-    const hashPassword = bcrypt.hash(password, 10)
-    const body = {hashPassword}
+    const hashPassword = await bcrypt.hash(password, 10)
+    const body = {password:hashPassword}
 
     await User.update(body, {where: {id:userCode.userId}})
 
     await userCode.destroy()
 
-    return res.status(200)
+    return res.status(200).json({message: "Update Password"})
 })
 
 module.exports = {
